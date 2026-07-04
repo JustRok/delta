@@ -27,6 +27,39 @@
    display: none;
 }
     </style>
+    <script>
+      (function() {
+    const OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
+    if (OriginalAudioContext) {
+      const originalCreateGain = OriginalAudioContext.prototype.createGain;
+
+      class AudioContextWithGain extends OriginalAudioContext {
+        constructor() {
+          super(...arguments);
+        }
+        createGain() {
+          return originalCreateGain.call(this);
+        }
+      }
+      window.AudioContext = AudioContextWithGain;
+      window.webkitAudioContext = AudioContextWithGain;
+    }
+    const originalPlay = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function() {
+      this.muted = false;
+      this.volume = 1;
+      return originalPlay.call(this);
+    };
+    const OriginalAudio = window.Audio;
+    window.Audio = function() {
+      const audio = new OriginalAudio(...arguments);
+      audio.muted = false;
+      audio.volume = 1;
+      return audio;
+    };
+    window.Audio.prototype = OriginalAudio.prototype;
+  })();
+    </script>
   </head>
   <body>
     <div class="logo-container">
