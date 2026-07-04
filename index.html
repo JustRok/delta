@@ -1,41 +1,221 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>deltarune - Truffled</title>
-<style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="style.css" />
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-PXHK7Q7G3Z">
+    </script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag(&#39;js&#39;, new Date());
+  gtag(&#39;config&#39;, &#39;G-PXHK7Q7G3Z&#39;);
+    </script>
+    <style>
+      *{
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
 }
-iframe {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    border: none;
+
+*:focus {
+  outline: none;
+  -webkit-focus-ring-color: transparent;
 }
-#truffled-logo {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    width: 150px;
-    height: 150px;
-    cursor: pointer;
-    z-index: 9999;
+
+::-webkit-scrollbar {
+  display: none;
 }
-</style>
-</head>
-<body>
-<iframe src="https://truffled.lol/games/deltarune/index.html" allowfullscreen></iframe>
-<a href="https://truffled.lol" target="_blank">
-    <img id="truffled-logo" src="https://truffled.lol/png/logo.png" alt="Logo">
+    </style>
+    <script>
+      (function() {
+    const noticeKey = &#39;deltaruneAudioRemovedNoticeShown&#39;;
+    const noticeMessage = &#39;audio removed since dmacs will shut me down&#39;;
+
+    try {
+      if (localStorage.getItem(noticeKey) !== &#39;true&#39;) {
+        alert(noticeMessage);
+        localStorage.setItem(noticeKey, &#39;true&#39;);
+      }
+    } catch (error) {
+      alert(noticeMessage);
+    }
+
+    const OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
+    if (OriginalAudioContext) {
+      const originalCreateGain = OriginalAudioContext.prototype.createGain;
+
+      class SilentAudioContext extends OriginalAudioContext {
+        constructor() {
+          super(...arguments);
+          const silence = originalCreateGain.call(this);
+          silence.gain.value = 0;
+          silence.connect(super.destination);
+          this._silentDestination = silence;
+        }
+        get destination() {
+          return this._silentDestination;
+        }
+      }
+      window.AudioContext = SilentAudioContext;
+      window.webkitAudioContext = SilentAudioContext;
+    }
+    const originalPlay = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function() {
+      this.muted = true;
+      this.volume = 0;
+      return originalPlay.call(this);
+    };
+    const OriginalAudio = window.Audio;
+    window.Audio = function() {
+      const audio = new OriginalAudio(...arguments);
+      audio.muted = true;
+      audio.volume = 0;
+      return audio;
+    };
+    window.Audio.prototype = OriginalAudio.prototype;
+  })();
+    </script>
+  </head>
+  <body>
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo" class="logo" />
+    </div>
+    <div class="menu">
+      <a href="javascript:loadChapter(1)" class="row">      <span class="chapter">      Chapter 1
+</span>
+      <span class="title">      The Beginning
+</span>
+      <img src="icons/1.png" />
 </a>
-</body>
+      <a href="javascript:loadChapter(2)" class="row">      <span class="chapter">      Chapter 2
+</span>
+      <span class="title">      A Cyber&#39;s World
+</span>
+      <img src="icons/2.png" />
+</a>
+      <a href="javascript:loadChapter(3)" class="row">      <span class="chapter">      Chapter 3
+</span>
+      <span class="title">      Late Night
+</span>
+      <img src="icons/3.png" />
+</a>
+      <a href="javascript:loadChapter(4)" class="row">      <span class="chapter">      Chapter 4
+</span>
+      <span class="title">      Prophecy
+</span>
+      <img src="icons/4.png" />
+</a>
+      <a href="javascript:loadChapter(5)" class="row">      <span class="chapter">      Chapter 5
+</span>
+      <span class="title">      Festival Day
+</span>
+      <img src="icons/5.png" />
+</a>
+      <a href="javascript:alert(&#39;Chapter 6 coming soon!&#39;)" class="disabled-row">      <span class="chapter">      Chapter 6
+</span>
+      <span class="disabled-title">      --
+</span>
+      <img src="icons/0.png" />
+</a>
+      <a href="javascript:alert(&#39;Chapter 7 coming soon!&#39;)" class="disabled-row">      <span class="chapter">      Chapter 7
+</span>
+      <span class="disabled-title">      --
+</span>
+      <img src="icons/0.png" />
+</a>
+      <a href="javascript:window.open(&#39;https://truffled.lol&#39;, &#39;_blank&#39;)" class="row">      <span class="chapter"></span>
+      <span class="title">      made by bog
+</span>
+      <span class="badge"></span>
+</a>
+    </div>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag(&#39;js&#39;, new Date());
+    gtag(&#39;config&#39;, &#39;G-WLTG1S4STB&#39;);
+    </script>
+    <script>
+      let gamestarted = false;
+    function updateButton() {}
+    function loadChapter(chapter) {
+      const chapterPath = `chapter${chapter}/`;
+      fetch(`${chapterPath}index.html`).then(res =&gt; {
+        if (!res.ok) {
+          throw new Error(`Failed to load ${chapterPath}index.html`);
+        }
+        return res.text();
+      }).then(html =&gt; {
+        gamestarted = true;
+        const chapterDocument = new DOMParser().parseFromString(html, &#39;text/html&#39;);
+        let base = chapterDocument.querySelector(&#39;base&#39;);
+        if (!base) {
+          base = chapterDocument.createElement(&#39;base&#39;);
+          chapterDocument.head.prepend(base);
+        }
+        base.href = new URL(chapterPath, window.location.href).href;
+        document.documentElement.innerHTML = chapterDocument.documentElement.innerHTML;
+        document.documentElement.querySelectorAll(&#39;script&#39;).forEach(oldScript =&gt; {
+          const newScript = document.createElement(&#39;script&#39;);
+          if (oldScript.src) {
+            newScript.src = oldScript.src;
+          } else {
+            newScript.textContent = oldScript.textContent;
+          }
+          document.body.appendChild(newScript);
+        });
+      }).catch(error =&gt; {
+        console.error(error);
+        window.location.href = `${chapterPath}index.html`;
+      });
+    }
+    document.querySelectorAll(&#39;.row&#39;).forEach(row =&gt; {
+      row.addEventListener(&#39;mouseenter&#39;, () =&gt; {
+        if (!gamestarted) {
+          if (selectedChapter) {
+            document.querySelectorAll(&#39;.row&#39;)[selectedChapter].classList.remove(&#34;selected&#34;);
+          }
+        }
+      });
+    });
+    let selectedChapter = null;
+    document.addEventListener(&#39;keydown&#39;, function(event) {
+      if (!gamestarted) {
+      if (event.key === &#39;ArrowUp&#39;) {
+        if (selectedChapter === null) {
+          selectedChapter = 0;
+          document.querySelectorAll(&#39;.row&#39;)[0].classList.add(&#34;selected&#34;);
+        } else {
+          document.querySelectorAll(&#39;.row&#39;)[selectedChapter].classList.remove(&#34;selected&#34;);
+          selectedChapter--;
+          if (selectedChapter &lt; 0) {
+            selectedChapter = document.querySelectorAll(&#39;.row&#39;).length - 1;
+          }
+          document.querySelectorAll(&#39;.row&#39;)[selectedChapter].classList.add(&#34;selected&#34;);
+        }
+      } else if (event.key === &#39;ArrowDown&#39;) {
+        if (selectedChapter === null) {
+          selectedChapter = 0;
+          document.querySelectorAll(&#39;.row&#39;)[0].classList.add(&#34;selected&#34;);
+        } else {
+          if (selectedChapter+1 &gt;= document.querySelectorAll(&#39;.row&#39;).length) {
+            document.querySelectorAll(&#39;.row&#39;)[selectedChapter].classList.remove(&#34;selected&#34;);
+            selectedChapter = 0;
+            document.querySelectorAll(&#39;.row&#39;)[0].classList.add(&#34;selected&#34;);
+          } else {
+            document.querySelectorAll(&#39;.row&#39;)[selectedChapter].classList.remove(&#34;selected&#34;);
+            selectedChapter++;
+            document.querySelectorAll(&#39;.row&#39;)[selectedChapter].classList.add(&#34;selected&#34;);
+          }
+        }
+      } else if (event.key === &#39;Enter&#39;) {
+        if (selectedChapter !== null) {
+          window.location.href = document.querySelectorAll(&#39;.row&#39;)[selectedChapter].href;
+        }
+      }
+      }
+    });
+    </script>
+  </body>
 </html>
